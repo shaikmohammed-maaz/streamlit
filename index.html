@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Just One Counter :)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #f0f0f0;
+      overflow: hidden;
+      font-family: monospace;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #e74c3c;
+      color: white;
+      text-align: center;
+      padding: 8px;
+      font-size: 1.1em;
+      font-weight: bold;
+      z-index: 9999;
+      user-select: none;
+    }
+
+    #stop-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #2ecc71;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      z-index: 9999;
+      transition: background 0.2s;
+      user-select: none;
+    }
+
+    #stop-btn:hover {
+      background: #27ae60;
+    }
+
+    #arena {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .counter {
+      position: absolute;
+      background: white;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+      user-select: none;
+      text-align: center;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+      animation: wobble 2s infinite ease-in-out;
+      transition: transform 0.1s;
+      min-width: 80px;
+    }
+
+    .counter:active {
+      transform: scale(0.95);
+    }
+
+    .label {
+      font-size: 0.85em;
+      color: #666;
+      margin-bottom: 4px;
+      white-space: nowrap;
+    }
+
+    .count {
+      font-size: 2em;
+      font-weight: bold;
+      color: #e74c3c;
+      line-height: 1.1;
+    }
+
+    @keyframes wobble {
+      0%, 100% {
+        rotate: -1deg;
+      }
+      50% {
+        rotate: 1deg;
+      }
+    }
+
+    /* Staggered wobble phases so not all counters move in unison */
+    .counter:nth-child(2n)   { animation-delay: -0.5s; }
+    .counter:nth-child(3n)   { animation-delay: -1.0s; }
+    .counter:nth-child(5n)   { animation-delay: -1.5s; }
+    .counter:nth-child(7n)   { animation-delay: -0.3s; }
+    .counter:nth-child(11n)  { animation-delay: -0.8s; }
+  </style>
+</head>
+<body>
+  <div id="header">
+    You have <span id="counter-count">0</span> counter(s). Good job.
+  </div>
+
+  <button id="stop-btn" onclick="spawnBurst()">STOP</button>
+
+  <div id="arena"></div>
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────────────────
+    let totalCounters = 0;
+
+    // ── Audio ──────────────────────────────────────────────────────────────────
+    let audioCtx = null;
+
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      // Resume if suspended (autoplay policy)
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playBlip() {
+      try {
+        const ctx = getAudioCtx();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.frequency.value = 300 + Math.random() * 800;
+        o.type = ['sine', 'square', 'sawtooth'][Math.floor(Math.random() * 3)];
+        g.gain.setValueAtTime(0.08, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+        o.start();
+        o.stop(ctx.currentTime + 0.15);
+      } catch (e) {
+        // Silently ignore audio errors — visuals still work
+      }
+    }
+
+    // ── Utilities ──────────────────────────────────────────────────────────────
+    function rand(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function updateHeader() {
+      document.getElementById('counter-count').textContent = totalCounters;
+    }
+
+    // ── Draggable ──────────────────────────────────────────────────────────────
+    function makeDraggable(el) {
+      let ox = 0, oy = 0;
+      let dragging = false;
+
+      el.addEventListener('mousedown', function (e) {
+        // Don't interfere with click if no movement happens
+        ox = e.clientX - el.offsetLeft;
+        oy = e.clientY - el.offsetTop;
+        dragging = false;
+
+        function onMove(e) {
+          dragging = true;
+          el.style.left = (e.clientX - ox) + 'px';
+          el.style.top  = (e.clientY - oy) + 'px';
+        }
+
+        function onUp() {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+
+      // Prevent click from firing after a drag
+      el.addEventListener('click', function (e) {
+        if (dragging) {
+          e.stopImmediatePropagation();
+          dragging = false;
+        }
+      }, true);
+    }
+
+    // ── Counter spawning ───────────────────────────────────────────────────────
+    function spawnCounter() {
+      const id = ++totalCounters;
+      updateHeader();
+
+      const el = document.createElement('div');
+      el.className = 'counter';
+
+      // Random position within safe viewport bounds (below header bar)
+      el.style.left = rand(2, 85) + 'vw';
+      el.style.top  = rand(8, 80) + 'vh';
+
+      // Gradually shrink font so the pile of counters stays legible but cramped
+      const fontSize = Math.max(9, 22 - id * 0.25);
+      el.style.fontSize = fontSize + 'px';
+
+      // Each counter gets its own z-index layer so newer ones appear on top
+      el.style.setProperty('--z', id);
+      el.style.zIndex = id;
+
+      el.innerHTML = `
+        <div class="label">Counter #${id}</div>
+        <div class="count">0</div>
+      `;
+
+      // Click: increment own count, spawn a new counter, play audio
+      el.addEventListener('click', function () {
+        const countEl = el.querySelector('.count');
+        countEl.textContent = parseInt(countEl.textContent, 10) + 1;
+        spawnCounter();
+        playBlip();
+      });
+
+      makeDraggable(el);
+
+      document.getElementById('arena').appendChild(el);
+      return el;
+    }
+
+    // ── STOP button ────────────────────────────────────────────────────────────
+    const STOP_LABELS = ['PLEASE', 'STILL NO', 'NOPE', 'LOL', ':(', 'WHY', 'NO U', 'HAHA'];
+    let stopLabelIndex = 0;
+
+    function spawnBurst() {
+      for (let i = 0; i < 5; i++) {
+        spawnCounter();
+      }
+      const btn = document.getElementById('stop-btn');
+      btn.textContent = STOP_LABELS[stopLabelIndex % STOP_LABELS.length];
+      stopLabelIndex++;
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+      spawnCounter();
+    });
+  </script>
+</body>
+</html>
