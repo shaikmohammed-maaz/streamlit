@@ -111,16 +111,342 @@
     .counter:nth-child(5n)   { animation-delay: -1.5s; }
     .counter:nth-child(7n)   { animation-delay: -0.3s; }
     .counter:nth-child(11n)  { animation-delay: -0.8s; }
+
+    /* ── Fake Login Panel ──────────────────────────────────────────────────── */
+    #login-trigger-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      padding: 4px 10px;
+      font-size: 0.8em;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: monospace;
+    }
+
+    #login-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 11000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #login-overlay.visible {
+      display: flex;
+      animation: slideInRight 0.35s ease-out;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(120%); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    #login-panel {
+      background: white;
+      border-radius: 12px;
+      padding: 32px 28px;
+      width: 340px;
+      max-width: 90vw;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    #login-close-btn {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: none;
+      border: none;
+      font-size: 1.4em;
+      cursor: pointer;
+      color: #999;
+      transition: color 0.1s;
+      line-height: 1;
+    }
+
+    #login-logo {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 8px;
+    }
+
+    #login-title {
+      text-align: center;
+      font-size: 1.3em;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #111;
+    }
+
+    #login-subtitle {
+      text-align: center;
+      font-size: 0.85em;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    #login-error {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      color: #b91c1c;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.82em;
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    #login-panel label {
+      display: block;
+      font-size: 0.82em;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 4px;
+      margin-top: 12px;
+    }
+
+    #login-panel input[type="text"],
+    #login-panel input[type="password"] {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 0.9em;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    #login-panel input:focus { border-color: #6366f1; }
+
+    .pw-wrap {
+      position: relative;
+    }
+
+    .pw-toggle {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    #login-submit-btn {
+      width: 100%;
+      margin-top: 18px;
+      padding: 10px;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    #login-submit-btn:hover { background: #4f46e5; }
+    #login-submit-btn:disabled { background: #a5b4fc; cursor: not-allowed; }
+
+    #captcha-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      margin: 10px 0;
+    }
+
+    #captcha-grid div {
+      background: #e5e7eb;
+      height: 72px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.1s;
+    }
+
+    #captcha-grid div.selected { border-color: #6366f1; background: #eef2ff; }
+
+    /* ── Freeze feature ─────────────────────────────────────────────────────── */
+    #freeze-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      z-index: 9999;
+      transition: background 0.2s;
+      user-select: none;
+    }
+
+    #freeze-btn:hover {
+      background: #2980b9;
+    }
+
+    #freeze-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(200, 200, 210, 0.35);
+      backdrop-filter: blur(1.5px) grayscale(60%) brightness(0.88);
+      -webkit-backdrop-filter: blur(1.5px) grayscale(60%) brightness(0.88);
+      z-index: 10000;
+      cursor: not-allowed;
+    }
+
+    .scanlines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.04) 2px,
+        rgba(0, 0, 0, 0.04) 4px
+      );
+      pointer-events: none;
+    }
+
+    .not-responding-dialog {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ece9d8;            /* classic Windows XP dialog beige */
+      border: 2px solid #0054a6;
+      border-radius: 4px;
+      width: 340px;
+      font-family: 'Tahoma', monospace;
+      font-size: 13px;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+      cursor: default;
+    }
+
+    .dialog-title {
+      background: linear-gradient(to right, #0054a6, #2d93e8);
+      color: white;
+      padding: 4px 8px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dialog-icon { font-size: 14px; }
+
+    .dialog-body {
+      padding: 16px 12px;
+      color: #000;
+      line-height: 1.5;
+    }
+
+    .dialog-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      padding-bottom: 12px;
+    }
+
+    .dialog-buttons button {
+      padding: 4px 24px;
+      font-size: 12px;
+      background: #ece9d8;
+      border: 2px solid #aaa;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: 'Tahoma', monospace;
+    }
+
+    .dialog-buttons button:hover { background: #ddd; }
+
+    /* Pause all counter animations while frozen */
+    body.is-frozen .counter {
+      animation-play-state: paused;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
   <div id="header">
     You have <span id="counter-count">0</span> counter(s). Good job.
+    <button id="login-trigger-btn" onclick="showLogin()">🔒 Login</button>
   </div>
 
   <button id="stop-btn" onclick="spawnBurst()">STOP</button>
 
+  <!-- Freeze button — fixed bottom-left -->
+  <button id="freeze-btn" onclick="triggerFreeze()">FREEZE</button>
+
+  <!-- Freeze overlay — hidden by default -->
+  <div id="freeze-overlay">
+    <div class="scanlines"></div>
+    <div class="not-responding-dialog">
+      <div class="dialog-title">
+        <span class="dialog-icon">⚠</span>
+        index.html – Not Responding
+      </div>
+      <div class="dialog-body">
+        This program has stopped responding.<br>
+        Would you like to end the process?
+      </div>
+      <div class="dialog-buttons">
+        <button onclick="forceQuit()">Force Quit</button>
+        <button onclick="forceQuit()">OK</button>
+      </div>
+    </div>
+  </div>
+
   <div id="arena"></div>
+
+  <!-- Login Panel Overlay -->
+  <div id="login-overlay">
+    <div id="login-panel">
+      <button id="login-close-btn" onmouseenter="escapeCursor(this)" onclick="escapeCursor(this)">×</button>
+      <div id="login-logo">🏢</div>
+      <h2 id="login-title">Welcome Back</h2>
+      <p id="login-subtitle">Sign in to your account</p>
+
+      <div id="login-error" style="display:none"></div>
+
+      <div id="login-form-area">
+        <label>Email or Username</label>
+        <input id="login-user" type="text" placeholder="you@company.com" autocomplete="off">
+
+        <label>Password</label>
+        <div class="pw-wrap">
+          <input id="login-pass" type="password" placeholder="••••••••">
+          <button class="pw-toggle" onclick="togglePassword()">👁</button>
+        </div>
+
+        <button id="login-submit-btn" onclick="attemptLogin()">Sign In</button>
+      </div>
+
+      <!-- Phase 6: fake captcha (hidden until needed) -->
+      <div id="captcha-area" style="display:none">
+        <p>Select all images containing a <strong>disappointed developer</strong>:</p>
+        <div id="captcha-grid"></div>
+        <button onclick="shuffleCaptcha()">I'm not a robot</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // ── State ──────────────────────────────────────────────────────────────────
@@ -233,6 +559,7 @@
         countEl.textContent = parseInt(countEl.textContent, 10) + 1;
         spawnCounter();
         playBlip();
+        onCounterClick();
       });
 
       makeDraggable(el);
@@ -252,6 +579,176 @@
       const btn = document.getElementById('stop-btn');
       btn.textContent = STOP_LABELS[stopLabelIndex % STOP_LABELS.length];
       stopLabelIndex++;
+    }
+
+    // ── Screen Freeze ──────────────────────────────────────────────────────────
+    const FREEZE_LABELS = ['FREEZE', 'FROZEN 🥶', 'STILL FROZEN', 'REALLY FROZEN', 'SO FROZEN'];
+    let freezeLabelIndex = 0;
+    let freezeTimeout = null;
+
+    function triggerFreeze() {
+      document.body.classList.add('is-frozen');
+      document.getElementById('freeze-overlay').style.display = 'block';
+      const btn = document.getElementById('freeze-btn');
+      btn.textContent = FREEZE_LABELS[(++freezeLabelIndex) % FREEZE_LABELS.length];
+    }
+
+    function forceQuit() {
+      // "Fix" it by unfreezing — but spawn 3 counters and immediately re-freeze
+      for (let i = 0; i < 3; i++) spawnCounter();
+      document.body.classList.remove('is-frozen');
+      document.getElementById('freeze-overlay').style.display = 'none';
+      clearTimeout(freezeTimeout);
+      freezeTimeout = setTimeout(triggerFreeze, 800);
+    }
+
+    // ── Fake Login Panel ─────────────────────────────────────────────────────
+    const LOGIN_ERRORS = [
+      "Incorrect password. 2 attempts remaining.",
+      "Account temporarily locked. Try again in 847 minutes.",
+      "Security verification required — please enter your mother's maiden emoji 👩",
+      "Your password has expired. New password must contain ≥1 hieroglyph and a prime number.",
+      "We've sent a 9-digit code to your email. (Check spam. And junk. And trash. And recycling.)",
+      "__CAPTCHA__",    // special: shows captcha
+      "You have been reported to IT. Please hold.",
+      "__SUCCESS__"     // special: fakes success then re-opens
+    ];
+    let loginAttempt = 0;
+    let closeEscapes = 0;
+    let totalClicksForLogin = 0;   // incremented on every counter click
+    const LOGIN_AUTO_TRIGGER = 15; // show login after 15 total clicks
+
+    function showLogin() {
+      const overlay = document.getElementById('login-overlay');
+      overlay.classList.add('visible');
+      // Reset form state
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+      document.getElementById('login-pass').type = 'password';
+      document.getElementById('login-pass').disabled = false;
+      document.getElementById('login-user').disabled = false;
+      document.getElementById('login-error').style.display = 'none';
+      document.getElementById('login-form-area').style.display = 'block';
+      document.getElementById('captcha-area').style.display = 'none';
+      const btn = document.getElementById('login-submit-btn');
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+
+    function hideLogin() {
+      document.getElementById('login-overlay').classList.remove('visible');
+    }
+
+    function attemptLogin() {
+      const btn = document.getElementById('login-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+
+      setTimeout(() => {
+        const phase = LOGIN_ERRORS[loginAttempt % LOGIN_ERRORS.length];
+        loginAttempt++;
+
+        if (phase === '__CAPTCHA__') {
+          document.getElementById('login-form-area').style.display = 'none';
+          showCaptcha();
+          return;
+        }
+
+        if (phase === '__SUCCESS__') {
+          showError('✅ Congratulations! Login successful.');
+          btn.textContent = 'Sign In';
+          btn.disabled = false;
+          setTimeout(() => {
+            hideLogin();
+            setTimeout(() => {
+              showLogin();
+              showError('Session expired. Please log in again.');
+            }, 1500);
+          }, 1800);
+          return;
+        }
+
+        if (phase.includes("Please hold")) {
+          showError(phase);
+          btn.textContent = 'Contacting IT…';
+          document.getElementById('login-user').disabled = true;
+          document.getElementById('login-pass').disabled = true;
+          // stays disabled — "forever"
+          return;
+        }
+
+        showError(phase);
+        btn.disabled = false;
+        btn.textContent = 'Try Again';
+      }, 1200);
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('login-error');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function togglePassword() {
+      const f = document.getElementById('login-pass');
+      f.type = f.type === 'password' ? 'text' : 'password';
+    }
+
+    // Close button escape logic
+    function escapeCursor(btn) {
+      closeEscapes++;
+      if (closeEscapes >= 3) {
+        btn.style.display = 'none';
+        // Plant a tiny × in a random corner of the panel
+        const panel = document.getElementById('login-panel');
+        const tiny = document.createElement('button');
+        tiny.textContent = '×';
+        tiny.style.cssText = 'position:absolute;font-size:8px;background:none;border:none;cursor:pointer;color:#ddd;';
+        tiny.style.top = (Math.random() > 0.5 ? '4px' : 'auto');
+        tiny.style.bottom = (tiny.style.top === 'auto' ? '4px' : 'auto');
+        tiny.style.left = (Math.random() > 0.5 ? '4px' : 'auto');
+        tiny.style.right = (tiny.style.left === 'auto' ? '4px' : 'auto');
+        tiny.onclick = hideLogin;
+        panel.appendChild(tiny);
+        return;
+      }
+      const positions = [
+        { top: '12px', right: '14px', left: 'auto', bottom: 'auto' },
+        { top: 'auto', right: '14px', left: 'auto', bottom: '12px' },
+        { top: '12px', right: 'auto', left: '14px', bottom: 'auto' },
+        { top: 'auto', right: 'auto', left: '14px', bottom: '12px' },
+      ];
+      const pos = positions[Math.floor(Math.random() * positions.length)];
+      Object.assign(btn.style, pos);
+    }
+
+    // Fake CAPTCHA
+    const CAPTCHA_EMOJIS = ['😭', '😤', '😩', '🤦', '😫', '🤷', '😞', '😕'];
+    function showCaptcha() {
+      document.getElementById('captcha-area').style.display = 'block';
+      shuffleCaptcha();
+    }
+
+    function shuffleCaptcha() {
+      const grid = document.getElementById('captcha-grid');
+      grid.innerHTML = '';
+      [...CAPTCHA_EMOJIS].sort(() => Math.random() - 0.5).forEach(e => {
+        const cell = document.createElement('div');
+        cell.textContent = e;
+        cell.onclick = () => {
+          cell.classList.toggle('selected');
+          setTimeout(shuffleCaptcha, 400); // shuffle on any click
+        };
+        grid.appendChild(cell);
+      });
+    }
+
+    // Auto-trigger: called inside the existing counter click handler
+    function onCounterClick() {
+      totalClicksForLogin++;
+      if (totalClicksForLogin === LOGIN_AUTO_TRIGGER) {
+        showLogin();
+      }
     }
 
     // ── Init ───────────────────────────────────────────────────────────────────
